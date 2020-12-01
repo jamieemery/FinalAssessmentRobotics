@@ -17,7 +17,7 @@ def movebase_client():
 
    # Creates a new goal with the MoveBaseGoal constructor
     goal = MoveBaseGoal()
-    goal.target_pose.header.frame_id = "map"
+    goal.target_pose.header.frame_id = "base_link"
     goal.target_pose.header.stamp = rospy.Time.now()
    # Move 0.5 meters forward along the x axis of the "map" coordinate frame 
     goal.target_pose.pose.position.x = 0.5
