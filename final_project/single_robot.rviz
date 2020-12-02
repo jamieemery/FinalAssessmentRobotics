@@ -89,10 +89,10 @@ Visualization Manager:
     - Arrow Length: 0.300000012
       Class: rviz/PoseArray
       Color: 255; 25; 0
-      Enabled: true
+      Enabled: false
       Name: PoseArray
       Topic: /particlecloud
-      Value: true
+      Value: false
     - Alpha: 0.699999988
       Class: rviz/Map
       Color Scheme: costmap
@@ -161,7 +161,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz/ThirdPersonFollower
+      Class: rviz/Orbit
       Distance: 43.5168953
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
@@ -169,15 +169,15 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
+        X: 16
+        Y: 16
         Z: 0
       Name: Current View
-      Near Clip Distance: 0.00999999978
-      Pitch: 0.710398257
-      Target Frame: base_link
-      Value: ThirdPersonFollower (rviz)
-      Yaw: 2.82039738
+      Near Clip Distance: 0.01
+      Pitch: 1.5498
+      Target Frame: map
+      Value: Orbit (rviz)
+      Yaw: 4.70859
     Saved: ~
 Window Geometry:
   Displays:
