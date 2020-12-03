@@ -1,4 +1,4 @@
-image: /home/thr/catkin_ws/src/ROS-Map-Generator/IRX-Clamps-Ass-3-mapNew.pgm
+image: /home/catkin_ws/src/FinalAssessmentRobotics/final_project/world/IRX-Clamps-Ass-3-mapNew.pgm
 resolution: 0.050000
 origin: [-1,-1, 0.000000]
 negate: 0
