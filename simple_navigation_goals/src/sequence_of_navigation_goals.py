@@ -15,8 +15,8 @@ class MoveBaseSeq():
     def __init__(self):
 
         rospy.init_node('move_base_sequence')
-        p_seq = [0.2,0.5,0,2,0.5,0,1.5,-0.5,0]
-        # Only yaw angle required (no ratotions around x and y axes) in deg:
+        p_seq = [20,18,0,30,17,0,15,15,0]
+        # Only yaw angle required (no rotations around x and y axes) in deg:
         yea_seq = [90,0,180]
         #List of goal quaternions:
         quat_seq = list()
