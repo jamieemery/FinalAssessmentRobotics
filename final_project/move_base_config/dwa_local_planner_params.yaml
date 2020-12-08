@@ -34,6 +34,6 @@ DWAPlannerROS:
   vy_samples: 0                         # Default = 10
   vtheta_samples: 40                     # Default = 20
 
-  xy_goal_tolerance: 0.10                 # Default = 0.10
-  yaw_goal_tolerance: 0.05               # Default = 0.05
+  xy_goal_tolerance: 0.25                 # Default = 0.10
+  yaw_goal_tolerance: 3.14               # Default = 0.05
   prune_plan: true                       # Default = true
