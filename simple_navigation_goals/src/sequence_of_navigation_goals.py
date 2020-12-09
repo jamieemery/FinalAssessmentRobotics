@@ -8,6 +8,8 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from actionlib_msgs.msg import GoalStatus
 from geometry_msgs.msg import Pose, Point, Quaternion
 from tf.transformations import quaternion_from_euler
+from greedyTSP import GreedyTSP
+from our_node import Node
 
 
 class MoveBaseSeq():
@@ -20,6 +22,10 @@ class MoveBaseSeq():
 	refill_p = [32.2,14,0]
 	self.refill_yaw = Quaternion(*(quaternion_from_euler(0, 0, 90*math.pi/180, axes='sxyz')))
 	self.refill_p = Pose(Point(*refill_p),self.refill_yaw) 
+	# starting point's position
+	start_p = [4.85,14.4,0]
+	self.start_yaw = Quaternion(*(quaternion_from_euler(0, 0, 90*math.pi/180, axes='sxyz')))
+	self.start_p = Pose(Point(*refill_p),self.start_yaw)
 	# amount of spray
 	self.spray_counter = 100
 	# flag to check if it's been to the refilling point
@@ -53,6 +59,21 @@ class MoveBaseSeq():
             rospy.signal_shutdown("Action server not available!")
             return
         rospy.loginfo("Connected to move base server")
+	rospy.loginfo("Calculating optimal path for visiting the goals...")
+	notVisited = list()
+	# transform points to Node objects	
+	for point in self.pose_seq:
+	    notVisited.append(Node(point.position.x,point.position.y,point.position.z,point.orientation))
+	start = Node(self.start_p.position.x,self.start_p.position.y,self.start_p.position.z,self.start_p.orientation)
+	greed = GreedyTSP()
+	# TSP's greedy algorithm implementation
+	seq_nodes = greed.greedyTSPAlgorithm(start, notVisited)
+	# turn Node objects back to Pose objects for the Action server to use
+	self.pose_seq = list()
+	for node in seq_nodes:
+	    point = [node.x,node.y,node.z]
+	    self.pose_seq.append(Pose(Point(*point),node.theta))
+	rospy.loginfo(str(self.pose_seq))
         rospy.loginfo("Starting goals achievements ...")
         self.movebase_client()
 
