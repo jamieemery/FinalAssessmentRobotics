@@ -6,8 +6,9 @@ Find the optimal path solution using the greedy TSP algorithm
 
 import math
 from our_node import Node
+from itertools import permutations
 
-class GreedyTSP:
+class TSP:
 
 
 	def takeSmallestDistanceNode(self, givenNode, nonTravelled):
@@ -30,6 +31,34 @@ class GreedyTSP:
 		newPathOrdered.append(smallestNode)
 
 	    return newPathOrdered
+
+
+	def calculate_length(self, path):
+	    l = 0
+	    i = 0
+	    while i < 5:
+		dist = path[i].euclidean_distance(path[i+1])
+		l += dist
+		i += 1
+	    
+	    return l
+
+
+	def bruteTSPAlgorithm(self, listOfNodes):
+	    possiblePaths = list(permutations(listOfNodes))
+	    min_path_length = self.calculate_length(possiblePaths[0])
+	    smallest_path = possiblePaths[0]
+	    for path in possiblePaths:
+		length = self.calculate_length(path)
+		if length <= min_path_length:
+		   min_path_length = length
+		   smallest_path = path
+
+	    return smallest_path
+	
+            
+	    
+	    
 
 
 	

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(final_project)
+project(navstack_run_files)
 
 # Find catkin
 find_package(catkin REQUIRED)
@@ -19,5 +19,5 @@ install(DIRECTORY world
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 # Install the rviz files
-install(FILES multi_robot.rviz single_robot.rviz
+install(FILES single_robot.rviz
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

@@ -8,7 +8,7 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from actionlib_msgs.msg import GoalStatus
 from geometry_msgs.msg import Pose, Point, Quaternion
 from tf.transformations import quaternion_from_euler
-from greedyTSP import GreedyTSP
+from TSP_solutions import TSP
 from our_node import Node
 
 
@@ -65,15 +65,18 @@ class MoveBaseSeq():
 	for point in self.pose_seq:
 	    notVisited.append(Node(point.position.x,point.position.y,point.position.z,point.orientation))
 	start = Node(self.start_p.position.x,self.start_p.position.y,self.start_p.position.z,self.start_p.orientation)
-	greed = GreedyTSP()
+	solution = TSP()
 	# TSP's greedy algorithm implementation
-	seq_nodes = greed.greedyTSPAlgorithm(start, notVisited)
+	# seq_nodes = solution.greedyTSPAlgorithm(start, notVisited)
+	seq_nodes = solution.bruteTSPAlgorithm(notVisited)
 	# turn Node objects back to Pose objects for the Action server to use
 	self.pose_seq = list()
 	for node in seq_nodes:
 	    point = [node.x,node.y,node.z]
 	    self.pose_seq.append(Pose(Point(*point),node.theta))
 	rospy.loginfo(str(self.pose_seq))
+	# assign spray amount needed to every goal, randomly for this trial
+	self.spray_needed = [37,23,54,20,20,19]
         rospy.loginfo("Starting goals achievements ...")
         self.movebase_client()
 
@@ -98,9 +101,17 @@ class MoveBaseSeq():
 	    	self.goal_cnt += 1
             	rospy.loginfo("Goal pose "+str(self.goal_cnt)+" reached")
 	    	rospy.loginfo("Spraying area!")
-	    	self.spray_counter -= 50
-	    if self.spray_counter == 0:
-	        rospy.loginfo("Spray can is empty! Heading to refilling station.")
+		self.spray_counter -= self.spray_needed[self.goal_cnt-1]
+	    if self.spray_counter >= self.spray_needed[self.goal_cnt] and self.goal_cnt < len(self.pose_seq):
+	    	next_goal = MoveBaseGoal()
+                next_goal.target_pose.header.frame_id = "map"
+                next_goal.target_pose.header.stamp = rospy.Time.now()
+                next_goal.target_pose.pose = self.pose_seq[self.goal_cnt]
+                rospy.loginfo("Sending goal pose "+str(self.goal_cnt+1)+" to Action Server")
+                rospy.loginfo(str(self.pose_seq[self.goal_cnt]))
+                self.client.send_goal(next_goal, self.done_callback, self.active_callback, self.feedback_callback)
+	    elif self.spray_counter < self.spray_needed[self.goal_cnt] and self.goal_cnt < len(self.pose_seq):
+		rospy.loginfo("Spray amount is not enough, heading to refilling station!")
 		self.flag = 1
 		self.spray_counter = 100
 		goal = MoveBaseGoal()
@@ -108,14 +119,6 @@ class MoveBaseSeq():
                 goal.target_pose.header.stamp = rospy.Time.now()
                 goal.target_pose.pose = self.refill_p
 		self.client.send_goal(goal, self.done_callback)
-            elif self.goal_cnt < len(self.pose_seq):
-                next_goal = MoveBaseGoal()
-                next_goal.target_pose.header.frame_id = "map"
-                next_goal.target_pose.header.stamp = rospy.Time.now()
-                next_goal.target_pose.pose = self.pose_seq[self.goal_cnt]
-                rospy.loginfo("Sending goal pose "+str(self.goal_cnt+1)+" to Action Server")
-                rospy.loginfo(str(self.pose_seq[self.goal_cnt]))
-                self.client.send_goal(next_goal, self.done_callback, self.active_callback, self.feedback_callback) 
             else:
                 rospy.loginfo("Final goal pose reached!")
                 rospy.signal_shutdown("Final goal pose reached!")

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package>
-  <name>final_project</name>
+  <name>navstack_run_files</name>
   <version>0.2.4</version>
   <description>
-    This package is the implementation of Clamps' Final Project.
+    This package is the implementation of Clamps' Final Project using ROS navigation stack.
   </description>
 
   <maintainer email="MXS1469@student.bham.ac.uk">Margarita Saranti</maintainer>
@@ -15,8 +15,6 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <run_depend>amcl</run_depend>
-  <run_depend>fake_localization</run_depend>
-  <run_depend>gmapping</run_depend>
   <run_depend>map_server</run_depend>
   <run_depend>move_base</run_depend>
   <run_depend>stage_ros</run_depend>
