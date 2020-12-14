@@ -20,16 +20,18 @@ class MoveBaseSeq():
         ## Have a static array of goals
         #p_seq = [8,19.6,0,15,19.6,0,21,19.6,0,8,8.5,0,15,8.5,0,22,8.5,0]
         ## Asking user to set the goal coordinates
+	self.tspChoice = input("Type 1 for greedy TSP solution, Type 2 for brute force TSP algorithm and 3 for swapping TSP algorithm: ")
         goals_number = input("Number of goals: ")
 	p_seq, spray_needed = self.userInputForGoals(goals_number)
         # refilling point's position
         refill_p = [32.2,14,0]
         self.refill_yaw = Quaternion(*(quaternion_from_euler(0, 0, 90*math.pi/180, axes='sxyz')))
         self.refill_p = Pose(Point(*refill_p),self.refill_yaw)
+	self.counter_refill = 0
 	# starting point's position
         start_p = [4.85,14.4,0]
         self.start_yaw = Quaternion(*(quaternion_from_euler(0, 0, 90*math.pi/180, axes='sxyz')))
-        self.start_p = Pose(Point(*refill_p),self.start_yaw)
+        self.start_p = Pose(Point(*start_p),self.start_yaw)
 	# amount of spray (100%)
         self.spray_counter = 100 #(%)
         # flag to check if it's been to the refilling point
@@ -97,12 +99,15 @@ class MoveBaseSeq():
 	start = Node(self.start_p.position.x,self.start_p.position.y,self.start_p.position.z,self.start_p.orientation)
         solution = TSP()
 	# TSP's solution algorithms
-        ## Greedy
-        #seq_nodes = solution.greedyTSPAlgorithm(start, notVisited)
+         ## Greedy
+        if self.tspChoice == 1:
+            seq_nodes = solution.greedyTSPAlgorithm(start, notVisited)
         ## Brute force
-        #seq_nodes = solution.bruteTSPAlgorithm(notVisited)
+        elif self.tspChoice == 2:
+            seq_nodes = solution.bruteTSPAlgorithm(start, notVisited)
         ## Swap
-        seq_nodes = solution.swapTSPAlgorithm(notVisited)
+        else:
+            seq_nodes = solution.swapTSPAlgorithm(start, notVisited)
         return seq_nodes
 
     def pointLogic(self, listOfPoints, goals_number, fromInnit):
@@ -181,7 +186,11 @@ class MoveBaseSeq():
                 goals_number = input("Add additional cleaning points, if none enter 0: ")
 		if goals_number > 0:
                     self.pose_seq = self.additionalCleaningPoints(goals_number, startPoint)
-	    if self.spray_counter >= self.organised_spray_needed(self.pose_seq[self.goal_cnt]) and self.goal_cnt < len(self.pose_seq):
+	    if self.goal_cnt >= len(self.pose_seq):
+                rospy.loginfo("Final goal pose reached!")
+                rospy.signal_shutdown("Final goal pose reached!")
+                return
+	    elif self.spray_counter >= self.organised_spray_needed(self.pose_seq[self.goal_cnt]):
 	    	next_goal = MoveBaseGoal()
                 next_goal.target_pose.header.frame_id = "map"
                 next_goal.target_pose.header.stamp = rospy.Time.now()
@@ -189,7 +198,7 @@ class MoveBaseSeq():
                 rospy.loginfo("Sending goal pose "+str(self.goal_cnt+1)+" to Action Server")
                 rospy.loginfo(str(self.pose_seq[self.goal_cnt]))
                 self.client.send_goal(next_goal, self.done_callback, self.active_callback)
-	    elif self.spray_counter < self.organised_spray_needed(self.pose_seq[self.goal_cnt]) and self.goal_cnt < len(self.pose_seq):
+	    elif self.spray_counter < self.organised_spray_needed(self.pose_seq[self.goal_cnt]):
 		rospy.loginfo("Spray amount is not enough, heading to refilling station!")
 		self.flag = 1
 		self.spray_counter = 100
@@ -198,10 +207,7 @@ class MoveBaseSeq():
                 goal.target_pose.header.stamp = rospy.Time.now()
                 goal.target_pose.pose = self.refill_p
 		self.client.send_goal(goal, self.done_callback)
-            else:
-                rospy.loginfo("Final goal pose reached!")
-                rospy.signal_shutdown("Final goal pose reached!")
-                return
+            
 
         if status == 4:
 	    self.goal_cnt += 1
